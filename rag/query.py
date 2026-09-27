@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from rag.format_data import format_search_results
 
@@ -11,7 +10,7 @@ def query_vector_store(
     vectorstore,
     k: int = 5,
     format_results: bool = True,
-    max_score: Optional[float] = None,
+    max_score: float | None = None,
 ):
     """
     Similarity search, optionally dropping weak matches.

@@ -30,4 +30,4 @@ def test_every_catalogue_product_becomes_a_document(products):
 
     documents = create_documents(products)
     assert len(documents) == len(products)
-    assert all(doc.metadata["id"] == p["id"] for doc, p in zip(documents, products))
+    assert all(doc.metadata["id"] == p["id"] for doc, p in zip(documents, products, strict=True))

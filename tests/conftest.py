@@ -2,6 +2,7 @@
 Offline fixtures: a keyword-overlap stand-in for FAISS and stubbed LLMs, so the
 suite runs without an OpenAI key or a sentence-transformers download.
 """
+
 import importlib
 import re
 from pathlib import Path

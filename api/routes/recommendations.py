@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Callable, Dict, List, Literal, Optional
+from collections.abc import Callable
+from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -12,8 +13,8 @@ router = APIRouter(prefix="/api/recommendations", tags=["Recommendations"])
 
 # Built once at startup (see api.main lifespan) and shared by every request.
 _vectorstore = None
-_recommend: Optional[Callable[[str], Dict[str, Any]]] = None
-_recommend_fast: Optional[Callable[[str], Dict[str, Any]]] = None
+_recommend: Callable[[str], dict[str, Any]] | None = None
+_recommend_fast: Callable[[str], dict[str, Any]] | None = None
 
 
 def initialize_recommendation_system(vectorstore=None) -> None:
@@ -24,6 +25,7 @@ def initialize_recommendation_system(vectorstore=None) -> None:
 
     if vectorstore is None:
         from rag.create_vector_store import create_load_vector_store
+
         vectorstore = create_load_vector_store()
 
     _vectorstore = vectorstore
@@ -39,7 +41,7 @@ def _require_ready() -> None:
 
 class RecommendationRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500, examples=["Best running shoes under $200"])
-    max_results: Optional[int] = Field(default=None, ge=1, le=50)
+    max_results: int | None = Field(default=None, ge=1, le=50)
     mode: Literal["llm", "fast"] = Field(
         default="llm",
         description="llm: LLM intent + explanation. fast: regex price parsing, templated explanation, zero LLM calls.",
@@ -48,10 +50,10 @@ class RecommendationRequest(BaseModel):
 
 class RecommendationResponse(BaseModel):
     query: str
-    recommendations: List[Dict[str, Any]]
+    recommendations: list[dict[str, Any]]
     explanation: str
     total_results: int
-    intent: Optional[Dict[str, Any]] = None
+    intent: dict[str, Any] | None = None
 
 
 @router.post("/", response_model=RecommendationResponse)
@@ -66,9 +68,9 @@ def get_recommendations(request: RecommendationRequest) -> RecommendationRespons
     recommend = _recommend_fast if request.mode == "fast" else _recommend
     try:
         result = recommend(request.query)
-    except Exception:
+    except Exception as exc:
         logger.exception("Recommendation failed for %r", request.query)
-        raise HTTPException(status_code=500, detail="Could not generate recommendations.")
+        raise HTTPException(status_code=500, detail="Could not generate recommendations.") from exc
 
     recommendations = result.get("recommendations", [])
     if request.max_results:
@@ -88,7 +90,7 @@ def search_products(
     q: str = Query(min_length=1, max_length=500),
     k: int = Query(default=settings.DEFAULT_SEARCH_K, ge=1, le=100),
     max_score: float = Query(default=settings.MAX_SIMILARITY_SCORE, gt=0),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Raw vector search (no LLM). `max_score` is an L2 distance: lower = closer."""
     _require_ready()
     results = query_vector_store(q, vectorstore=_vectorstore, k=k, max_score=max_score)

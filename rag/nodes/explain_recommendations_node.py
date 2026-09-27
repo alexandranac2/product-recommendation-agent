@@ -19,8 +19,7 @@ def explain_recommendations_node(state: AgentState) -> AgentState:
         return state
 
     products_text = "\n".join(
-        f"- {r.get('name')} (${r.get('price', 0)})"
-        for r in recommendations[: settings.MAX_RECOMMENDATIONS_TO_EXPLAIN]
+        f"- {r.get('name')} (${r.get('price', 0)})" for r in recommendations[: settings.MAX_RECOMMENDATIONS_TO_EXPLAIN]
     )
     prompt = (
         f'User asked: "{state["query"]}"\n\n'

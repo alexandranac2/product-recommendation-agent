@@ -23,9 +23,7 @@ def test_fast_mode_makes_no_llm_calls_and_respects_price(client, monkeypatch):
     monkeypatch.setattr(INTENT_NODE, "analyze_query", boom)
     monkeypatch.setattr(EXPLAIN_NODE, "_explain_llm", boom)
 
-    body = client.post(
-        "/api/recommendations/", json={"query": "running shoes under $180", "mode": "fast"}
-    ).json()
+    body = client.post("/api/recommendations/", json={"query": "running shoes under $180", "mode": "fast"}).json()
     assert body["recommendations"], body
     assert all(r["price"] <= 180 for r in body["recommendations"])
     assert body["intent"] is None

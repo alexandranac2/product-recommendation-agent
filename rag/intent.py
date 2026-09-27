@@ -1,7 +1,7 @@
 """LLM-based query understanding: turn free text into a structured intent."""
+
 import logging
 from functools import lru_cache
-from typing import Dict, Optional
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -18,12 +18,10 @@ class QueryIntent(BaseModel):
 
     intent: str = Field(description="One of: search, gift, comparison, specific_need")
     product: str = Field(description="The product the user is looking for")
-    category: Optional[str] = None
-    price_range: Optional[Dict[str, float]] = Field(
-        default=None, description='Price bounds, e.g. {"min": 0, "max": 200}'
-    )
-    attributes: Optional[Dict[str, str]] = None
-    use_case: Optional[str] = None
+    category: str | None = None
+    price_range: dict[str, float] | None = Field(default=None, description='Price bounds, e.g. {"min": 0, "max": 200}')
+    attributes: dict[str, str] | None = None
+    use_case: str | None = None
 
 
 @lru_cache(maxsize=1)

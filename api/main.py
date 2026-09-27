@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from config.settings import settings
 
 # Import route modules
-from api.routes import recommendations, health, routes_list
+from api.routes import health, recommendations, routes_list
+from config.settings import settings
 
 
 @asynccontextmanager
@@ -46,6 +46,5 @@ async def root():
         "message": "Product Recommendation System API",
         "version": settings.API_VERSION,
         "docs": "/docs",
-        "routes": "/api/routes"
+        "routes": "/api/routes",
     }
-

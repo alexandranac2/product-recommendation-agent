@@ -1,5 +1,7 @@
 # Product Recommendation Agent
 
+[![tests](https://github.com/alexandranac2/product-recommendation-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/alexandranac2/product-recommendation-agent/actions/workflows/tests.yml)
+
 A natural-language product recommender built as a **LangGraph** pipeline over a
 **FAISS** vector index, served by **FastAPI**. Ask for *"running shoes under $200"*
 or *"food for my puppy"* and get ranked products plus a short explanation.
@@ -90,12 +92,31 @@ curl -X POST localhost:8000/api/recommendations/ \
 ```bash
 pip install -r requirements-dev.txt
 pytest -q
+ruff check . && ruff format --check .
 ```
 
 The suite runs fully offline: a keyword-overlap stand-in replaces FAISS and the two
 LLM calls are stubbed, so CI needs no API key or model download. It covers ingestion,
 score filtering, price refinement (LLM and regex paths), the zero-LLM guarantee of
 `fast` mode, request validation and error handling.
+
+## Retrieval eval
+
+`evals/queries.json` holds 30 labelled queries that deliberately avoid product
+names ("my old dog has stiff joints", "portable charger for my phone"), scored
+against the real embedding model and FAISS index:
+
+```bash
+python -m evals.retrieval_eval
+```
+
+| queries | hit@1 | hit@3 | recall@5 | MRR |
+|--------:|------:|------:|---------:|----:|
+| 30 | 0.97 | 1.00 | 1.00 | 0.98 |
+
+The one miss: *"powerful laptop for software development"* ranks the budget student
+laptop first. With a 30-product catalogue these numbers are a regression guard, not
+a benchmark — CI fails if hit@3 drops below 0.9.
 
 ## Project layout
 
@@ -106,6 +127,7 @@ rag/            ingestion, vector store, intent model, LLM pipeline (agent/ + no
 simple_rag/     zero-LLM pipeline variant
 data/           sample catalogue (30 products)
 tests/          offline pytest suite
+evals/          labelled retrieval eval
 ```
 
 ## Limitations

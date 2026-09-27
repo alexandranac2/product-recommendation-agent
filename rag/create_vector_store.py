@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -18,8 +17,8 @@ DEFAULT_PRODUCTS_PATH = PROJECT_ROOT / "data" / "products.json"
 
 
 def create_load_vector_store(
-    name: Optional[str] = None,
-    products_path: Optional[Path] = None,
+    name: str | None = None,
+    products_path: Path | None = None,
 ) -> FAISS:
     """
     Load the FAISS index from disk, or build it from the product catalogue.
