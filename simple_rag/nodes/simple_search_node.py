@@ -1,21 +1,14 @@
+from config.settings import settings
+from rag.query import query_vector_store
 from simple_rag.agent.simple_state import SimpleAgentState
-from rag.query import query_vector_store  # Reuse existing query function
 
 
 def simple_search_node(state: SimpleAgentState, vectorstore) -> SimpleAgentState:
-    """Search products using raw query - no intent analysis needed"""
-    print("🔍 Searching products...")
-    
-    # Vector search is semantic, so raw query works great!
-    results = query_vector_store(
+    """Search on the raw query: the embedding model handles the semantics."""
+    state["search_results"] = query_vector_store(
         state["query"],
         vectorstore=vectorstore,
-        k=15,
-        format_results=True,
-        max_score=1.3
+        k=settings.DEFAULT_SEARCH_K,
+        max_score=settings.MAX_SIMILARITY_SCORE,
     )
-    
-    state["search_results"] = results
-    print(f"   Found {len(results)} products")
     return state
-

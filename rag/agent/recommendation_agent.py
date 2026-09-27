@@ -13,7 +13,7 @@ from rag.nodes import (
 
 
 def build_recommendation_graph(vectorstore):
-    """Build the workflow graph and return a function that accepts queries"""
+    """Full pipeline: LLM intent → vector search → price refine → LLM explanation."""
     workflow = StateGraph(AgentState)
     
     # Add nodes

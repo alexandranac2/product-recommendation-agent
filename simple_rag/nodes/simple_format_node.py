@@ -4,8 +4,6 @@ from simple_rag.agent.simple_state import SimpleAgentState
 
 def simple_format_node(state: SimpleAgentState) -> SimpleAgentState:
     """Format the final response"""
-    print("📋 Formatting response...")
-    
     formatted_response: Dict[str, Any] = {
         "query": state["query"],
         "recommendations": state["recommendations"],

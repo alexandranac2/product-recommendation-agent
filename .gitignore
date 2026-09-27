@@ -43,3 +43,7 @@ chroma_db/
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated FAISS index (rebuilt from data/products.json on first start)
+alexs_vectorstore/
+.pytest_cache/

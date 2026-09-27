@@ -1,4 +1,6 @@
+import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
@@ -9,19 +11,9 @@ from api.routes import recommendations, health, routes_list
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for FastAPI.
-    Handles startup and shutdown events.
-    """
-    # 🟢 STARTUP: Initialize recommendation system
-    print("🚀 Starting up recommendation API...")
+    """Load the vector store and compile the graph once, before serving traffic."""
     recommendations.initialize_recommendation_system()
-    print("✅ Startup complete!")
-    
-    yield  # ⏸️ App runs here - handles all requests
-    
-    # 🔴 SHUTDOWN: Cleanup (if needed)
-    print("🛑 Shutting down...")
+    yield
 
 
 app = FastAPI(
@@ -31,12 +23,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+logging.basicConfig(level=settings.LOG_LEVEL, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+# Public, read-only API with no cookies or auth, so credentials stay off.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 

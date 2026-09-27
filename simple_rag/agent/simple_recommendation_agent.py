@@ -12,7 +12,7 @@ from simple_rag.nodes import (
 
 
 def build_simple_recommendation_graph(vectorstore):
-    """Build simplified workflow graph - only 1 LLM call instead of 2"""
+    """Deterministic variant: no intent LLM, no explanation LLM — zero LLM calls."""
     workflow = StateGraph(SimpleAgentState)
     
     # Add nodes (no analyze_intent_node!)

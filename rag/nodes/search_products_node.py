@@ -1,33 +1,28 @@
+import logging
+
+from config.settings import settings
 from rag.agent.state import AgentState
 from rag.query import query_vector_store
-from config.settings import settings
+
+logger = logging.getLogger(__name__)
+
+
+def build_search_query(state: AgentState) -> str:
+    """Search on the extracted product + use case; fall back to the raw query."""
+    intent = state["analyzed_intent"]
+    if not intent:
+        return state["query"]
+    return f"{intent.product} {intent.use_case}" if intent.use_case else intent.product
 
 
 def search_products_node(state: AgentState, vectorstore) -> AgentState:
-    """Node 2: Search products using vector store"""
-    print("🔍 Searching products...")
-    
-    intent = state["analyzed_intent"]
-    
-    # Build search query
-    if intent:
-        search_query = intent.product
-        if intent.use_case:
-            search_query += f" {intent.use_case}"
-    else:
-        search_query = state["query"]
-    
-    print("search_query: ", search_query)
-    # Search using config values
-    results = query_vector_store(
+    """Node 2: semantic search over the product index."""
+    search_query = build_search_query(state)
+    state["search_results"] = query_vector_store(
         search_query,
         vectorstore=vectorstore,
         k=settings.DEFAULT_SEARCH_K,
-        format_results=True,
-        max_score=settings.MAX_SIMILARITY_SCORE
+        max_score=settings.MAX_SIMILARITY_SCORE,
     )
-    
-    state["search_results"] = results
-    print(f"   Found {len(results)} products")
+    logger.info("Search %r -> %d products", search_query, len(state["search_results"]))
     return state
-

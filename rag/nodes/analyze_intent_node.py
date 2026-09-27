@@ -1,14 +1,8 @@
 from rag.agent.state import AgentState
-from rag.analazye_promt import analyse_promt
+from rag.intent import analyze_query
 
 
 def analyze_intent_node(state: AgentState) -> AgentState:
-    """Node 1: Analyze user query to understand intent"""
-    print("🤖 Analyzing intent...")
-    
-    analyzed = analyse_promt(state["query"])
-    state["analyzed_intent"] = analyzed
-    
-    print(f"   Product: {analyzed.product}, Intent: {analyzed.intent}")
+    """Node 1: understand what the user is asking for."""
+    state["analyzed_intent"] = analyze_query(state["query"])
     return state
-

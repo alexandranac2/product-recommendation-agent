@@ -1,6 +1,7 @@
-import re
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 from simple_rag.agent.simple_state import SimpleAgentState
+from simple_rag.pricing import extract_price_range
 
 
 def _extract_numeric_field(products: List[Dict[str, Any]], field_name: str) -> List[float]:
@@ -72,8 +73,6 @@ def simple_explain_node(state: SimpleAgentState) -> SimpleAgentState:
     Generate explanation based on actual product data - NO LLM, NO HALLUCINATIONS
     Works dynamically with ANY product structure - no hardcoded fields
     """
-    print("💬 Generating explanation...")
-
     recommendations = state["recommendations"]
     query = state["query"]
 
@@ -81,9 +80,9 @@ def simple_explain_node(state: SimpleAgentState) -> SimpleAgentState:
         state["explanation"] = "No products found matching your criteria."
         return state
 
-    # Extract price constraint from query (if any)
-    price_match = re.search(r'(?:under|below|less than|max|maximum|up to)\s*\$?(\d+)', query.lower())
-    max_price = float(price_match.group(1)) if price_match else None
+    # Same price bound the refine step filtered on
+    _, max_price = extract_price_range(query)
+    max_price = None if max_price == float("inf") else max_price
 
     # Analyze actual product data dynamically
     top_products = recommendations[:3]
@@ -181,5 +180,4 @@ def simple_explain_node(state: SimpleAgentState) -> SimpleAgentState:
         explanation = f"Found {len(recommendations)} products matching your search criteria."
     
     state["explanation"] = explanation
-    print(f"   Explanation: {explanation[:100]}...")
     return state

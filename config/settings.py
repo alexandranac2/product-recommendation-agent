@@ -1,5 +1,5 @@
-from pydantic_settings import BaseSettings
-from typing import Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
 
 
 class Settings(BaseSettings):
@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     # Search Settings
     DEFAULT_SEARCH_K: int = 15  # Number of results to retrieve
     MAX_SIMILARITY_SCORE: float = 1.3  # Maximum similarity score threshold
-    DEFAULT_QUERY_K: int = 5  # Default k for query_vector_store
     
     # LLM Settings
     LLM_MODEL: str = "gpt-4o-mini"
@@ -28,11 +27,11 @@ class Settings(BaseSettings):
     API_DESCRIPTION: str = "API for product recommendations using RAG"
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
+    CORS_ORIGINS: List[str] = ["*"]
+    LOG_LEVEL: str = "INFO"
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
-        extra = "ignore"  # Ignore extra environment variables (like OPENAI_API_KEY)
+    # extra="ignore": .env also holds OPENAI_API_KEY, read by langchain-openai
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 
 # Global settings instance
