@@ -1,13 +1,14 @@
-from typing import TypedDict, List, Dict, Any, Optional
-from rag.analazye_promt import understand_promt
+from typing import Any, TypedDict
+
+from rag.intent import QueryIntent
 
 
 class AgentState(TypedDict):
-    """Simple state passed between nodes"""
-    query: str
-    analyzed_intent: Optional[understand_promt]
-    search_results: List[Dict[str, Any]]
-    recommendations: List[Dict[str, Any]]
-    explanation: str
-    formatted_response: Optional[Dict[str, Any]]
+    """State passed between the nodes of the recommendation graph."""
 
+    query: str
+    analyzed_intent: QueryIntent | None
+    search_results: list[dict[str, Any]]
+    recommendations: list[dict[str, Any]]
+    explanation: str
+    formatted_response: dict[str, Any] | None

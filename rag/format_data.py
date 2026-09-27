@@ -1,6 +1,4 @@
-def format_search_results(
-    results, is_reranked: bool = False, excluded_fields: list = None
-):
+def format_search_results(results, is_reranked: bool = False, excluded_fields: list = None):
     """
     Format search results for display - works with ANY product structure.
 

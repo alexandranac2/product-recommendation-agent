@@ -75,5 +75,4 @@ def create_documents(products):
         )
         documents.append(doc)
 
-    print(f"✅ Created {len(documents)} documents")
     return documents
